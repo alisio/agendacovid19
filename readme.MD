@@ -53,9 +53,11 @@ Para obter o token de acesso do pushbullet basta:
 1. Clicar no botão 'Create Access Token'
 1. Copiar o token gerado
 
-Conforme ilustrado na animação a seguir:
+Conforme ilustrado na animação a seguir :
 
 ![](pushbullet_access_token.gif)
+
+Obs. : O token utilizado na animação não é válido.
 
 # Uso:
 
