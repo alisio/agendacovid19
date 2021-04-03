@@ -1,21 +1,12 @@
 #!/usr/bin/env python3
 # coding: utf-8
 
-# ## Bibliotecas necessárias:
-# * beautifulsoup4
-# * lxml
-# * pandas
-# * pdfplumber
-# * requests
-# * PyPDF2
-# * re
+# A Prefeitura de Fortaleza-CE divulga, por meio da Secretaria Municipal da Saúde,
+# as listas de agendados, cadastrados e vacinados no portal de informações da prefeitura.
 #
-# ## Instalação
-# ```sh
-# pip3 install beautifulsoup4 requests flask
-# ```
-
-# In[12]:
+# Este script baixa os arquivos PDF que contém a [listas de agendados](https://coronavirus.fortaleza.ce.gov.br/vacinacao.html)
+# da vacina contra o COVID19 em Fortaleza/CE, procura pelo nome dado e envia o
+# resultado da busca para uma conta push bullet através da sua API
 
 
 from bs4 import BeautifulSoup
@@ -95,7 +86,7 @@ def download_arquivo(url,pasta_de_download='.'):
 
 
 def procura_nome_pdfgrep(nome, pasta='.'):
-    resultado_da_busca = subprocess.getoutput('pdfgrep -i "{}" {}/*.pdf'.format(nome, pasta))
+    resultado_da_busca = subprocess.getoutput('pdfgrep -i "{}" {}/*.pdf 2> /dev/null'.format(nome, pasta))
     return resultado_da_busca
 
 def ajuda():
