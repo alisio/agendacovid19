@@ -1,0 +1,5 @@
+beautifulsoup4==4.9.3
+Flask==1.1.2
+lxml==4.6.3
+pushbullet.py==0.12.0
+requests==2.25.1
