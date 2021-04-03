@@ -14,18 +14,18 @@ Autor: Antonio Alisio de Meneses Cordeiro - alisio.meneses@gmail.com
 * Conta [pushbullet](https://www.pushbullet.com)
 * [Token de acesso](https://docs.pushbullet.com) do pushbullet
 * Computador linux com os seguinte pacotes instalados:
- * Python3
- * pdfgrep
- * wget
+  * Python3
+  * pdfgrep
+  * wget
 
 ## MacOS
 * Conta [pushbullet](https://www.pushbullet.com)
 * Token de acesso do [pushbullet](https://docs.pushbullet.com)
 * Gerenciador de pacotes [homebrew](https://brew.sh)
 * Computador Mac com os seguinte pacotes instalados:
- * Python3
- * pdfgrep
- * wget
+  * Python3
+  * pdfgrep
+  * wget
 
 # Instalação
 
