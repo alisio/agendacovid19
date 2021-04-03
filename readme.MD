@@ -90,3 +90,7 @@ curiosos querendo aprender sobre linux, python e web API.
 # Licença
 
 Checar arquivo LICENSE
+
+# Autor
+
+Antonio Alisio de Meneses Cordeiro - alisio.meneses@gmail.com
