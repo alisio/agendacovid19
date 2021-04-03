@@ -25,9 +25,7 @@ url = 'https://spreadsheets.google.com/feeds/list/1IJBDu8dRGLkBgX72sRWKY6R9Gfefs
 
 ## Variáveis
 full_cmd_arguments = sys.argv
-# Keep all but the first
 argument_list = full_cmd_arguments[1:]
-# print(argument_list)
 short_options = "t:n:"
 long_options = ["token", "nome="]
 
@@ -139,28 +137,3 @@ if resultado != "":
     print("Encontrado agendamento para {}: {}".format(nome,resultado))
 else:
     print ("Não foi encontrado agendamento para {}".format(nome))
-
-
-# In[ ]:
-
-
-# app = Flask(__name__)
-
-# @app.route('/inicio')
-
-# def inicio():
-#     resultado = procura_nome_pdfgrep(nome, pasta_de_download)
-#     pb = Pushbullet('asdasdasdasdads')
-
-#     if resultado != "":
-#         titulo = "Agendamento de {} encontrado".format(nome)
-#         push = pb.push_note(titulo, resultado)
-#         print('Mensagem enviada')
-#         return '<h1>' + "Agendamento de {} encontrado".format(nome) + '</h1>'
-#     else:
-#         return '<h1>' + "Não foi encontrado agendamento para {}".format(nome) + '</h1>'
-
-# app.run()
-
-
-# In[ ]:
