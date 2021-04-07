@@ -19,15 +19,27 @@ import os
 import getopt,sys
 import subprocess
 
+import httplib2
+import oauth2client
+from oauth2client import client, tools, file
+import base64
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from apiclient import errors, discovery
+
+
 
 # Definir constantes
 url = 'https://spreadsheets.google.com/feeds/list/1IJBDu8dRGLkBgX72sRWKY6R9GfefsaDCXBd3Dz9PZNs/14/public/values'
+SCOPES = 'https://www.googleapis.com/auth/gmail.send'
+CLIENT_SECRET_FILE = 'credentials.json'
+APPLICATION_NAME = 'Agenda Covid 19 - Fortaleza'
 
 ## Variáveis
 full_cmd_arguments = sys.argv
 argument_list = full_cmd_arguments[1:]
-short_options = "t:n:"
-long_options = ["token", "nome="]
+short_options = "t:n:m:"
+long_options = ["token", "nome=", "email="]
 
 
 # In[3]:
@@ -88,52 +100,96 @@ def procura_nome_pdfgrep(nome, pasta='.'):
     return resultado_da_busca
 
 def ajuda():
-    print("uso: {} -n <NOME_A_SER_BUSCADO> -t <TOKEN_PUSHBULLET>".format(sys.argv[0]))
-# In[8]:
+    print("uso: {} -n <NOME_A_SER_BUSCADO> [-t <TOKEN_PUSHBULLET>] [-m emaildedestino@mail.com]".format(sys.argv[0]))
+
+def get_credentials():
+    home_dir = os.path.expanduser('~')
+    credential_dir = os.path.join(home_dir, '.credentials')
+    if not os.path.exists(credential_dir):
+        os.makedirs(credential_dir)
+    credential_path = os.path.join(credential_dir, 'gmail-python-email-send.json')
+    store = oauth2client.file.Storage(credential_path)
+    credentials = store.get()
+    if not credentials or credentials.invalid:
+        flow = client.flow_from_clientsecrets(CLIENT_SECRET_FILE, SCOPES)
+        flow.user_agent = APPLICATION_NAME
+        credentials = tools.run_flow(flow, store)
+        print('Storing credentials to ' + credential_path)
+    return credentials
+
+def SendMessage(sender, to, subject, msgHtml, msgPlain):
+    credentials = get_credentials()
+    http = credentials.authorize(httplib2.Http())
+    service = discovery.build('gmail', 'v1', http=http)
+    message1 = CreateMessage(sender, to, subject, msgHtml, msgPlain)
+    SendMessageInternal(service, "me", message1)
+
+def SendMessageInternal(service, user_id, message):
+    try:
+        message = (service.users().messages().send(userId=user_id, body=message).execute())
+        print('Message Id: %s' % message['id'])
+        return message
+    except errors.HttpError as error:
+        print('An error occurred: %s' % error)
+
+def CreateMessage(sender, to, subject, msgHtml, msgPlain):
+    msg = MIMEMultipart('alternative')
+    msg['Subject'] = subject
+    msg['From'] = sender
+    msg['To'] = to
+    msg.attach(MIMEText(msgPlain, 'plain'))
+    msg.attach(MIMEText(msgHtml, 'html'))
+    raw = base64.urlsafe_b64encode(msg.as_bytes())
+    raw = raw.decode()
+    body = {'raw': raw}
+    return body
 
 
-criar_pasta_de_download(pasta_de_download)
+def main():
+    criar_pasta_de_download(pasta_de_download)
+    lista_de_links=scrape_lista_de_pdf(url)
+    for link in lista_de_links:
+        download_arquivo(link, pasta_de_download)
+    try:
+        arguments, values = getopt.getopt(argument_list, short_options, long_options)
+    except getopt.error as err:
+        # Output error, and return with an error code
+        ajuda()
+        print (str(err))
+        sys.exit(2)
 
+    if len(argument_list) < 4 :
+        ajuda()
+        sys.exit(2)
 
-# In[9]:
+    # Evaluate given options
+    for current_argument, current_value in arguments:
+        if current_argument in ("-t", "--token"):
+            pushbullet_token = current_value
+        elif current_argument in ("-n", "--nome"):
+            nome = current_value
+        elif current_argument in ("-m", "--email"):
+            email = current_value
 
+    resultado = procura_nome_pdfgrep(nome, pasta_de_download)
 
-lista_de_links=scrape_lista_de_pdf(url)
-for link in lista_de_links:
-    download_arquivo(link, pasta_de_download)
+    if resultado != "":
+        if 'pushbullet_token' in globals() or 'pushbullet_token' in locals():
+            pb = Pushbullet(pushbullet_token)
+            titulo = "Encontrado agendamento para {}".format(nome)
+            push = pb.push_note(titulo, resultado)
+            print('Mensagem enviada para pushbullet')
+        if 'email' in globals() or 'email' in locals():
+            to = email
+            sender = "agendacovid19.fortaleza@gmail.com"
+            subject = "Encontrado agendamento para {}".format(nome)
+            msgHtml = ''.join(resultado.split('/')[2:])
+            msgPlain = msgHtml
+            SendMessage(sender, to, subject, msgHtml, msgPlain)
+            print(f"Mensagem enviada para email {email}")
+        print("Encontrado agendamento para {}: \n {}".format(nome,''.join(resultado.split('/')[2:])))
+    else:
+        print ("Não foi encontrado agendamento para {}".format(nome))
 
-
-# Busca usando pdfgrep
-
-# In[11]:
-
-try:
-    arguments, values = getopt.getopt(argument_list, short_options, long_options)
-except getopt.error as err:
-    # Output error, and return with an error code
-    ajuda()
-    print (str(err))
-    sys.exit(2)
-
-if len(argument_list) != 4 :
-    ajuda()
-    sys.exit(2)
-
-
-# Evaluate given options
-for current_argument, current_value in arguments:
-    if current_argument in ("-t", "--token"):
-        pushbullet_token = current_value
-    elif current_argument in ("-n", "--nome"):
-        nome = current_value
-
-resultado = procura_nome_pdfgrep(nome, pasta_de_download)
-pb = Pushbullet(pushbullet_token)
-
-if resultado != "":
-    titulo = "Encontrado agendamento para {}".format(nome)
-    push = pb.push_note(titulo, resultado)
-    print('Mensagem enviada para pushbullet')
-    print("Encontrado agendamento para {}: {}".format(nome,resultado))
-else:
-    print ("Não foi encontrado agendamento para {}".format(nome))
+if __name__ == '__main__':
+    main()
