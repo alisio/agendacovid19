@@ -209,3 +209,5 @@ Thumbs.db #thumbnail cache on Windows
 
 *.pdf
 */arquivos_baixados/*
+*/.ipynb_checkpoints/*
+*/.credentials/*
