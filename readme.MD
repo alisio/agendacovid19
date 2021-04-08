@@ -95,8 +95,9 @@ docker run --rm \
   -v ${PWD}:/insumos \
   -v ${HOME}/.credentials:/root/.credentials \
   -e email=fulano@mail.com \
+  -e email="fulano@mail.com" \
   -e nome="FULANO SICRANO" \
-  agendacovid19
+  alisio/agendacovidfortaleza
 
 ```
 
