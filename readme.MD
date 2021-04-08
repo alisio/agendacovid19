@@ -80,6 +80,27 @@ Mensagem enviada para pushbullet
 Encontrado agendamento para MARIA DO SOCORRO FULANA SICRANA: ./arquivos_baixados/03.04Lista_Agendados_03.04.pdf:63.0      MARIA DO SOCORRO FULANA SICRANA                ALDEOTA                UAPS DR. ROBERTO DA SILVA BRUNO        2021-04-03   10:00:00   1   1956-11-19
 ```
 
+## Docker
+
+Uma imagem docker do agendacovid19.fortaleza também está disponível. É necessário instalar
+o docker e executar um container baseado na imagem do agendacovid19.
+É necessário definir duas variáveis de ambiente para executar o container:
+1. O caminho para a pasta de insumos onde serão salvos os arquivos PDF e que deverá conter o arquivo json com as credenciais de acesso ao serviço google cloud
+2. O caminho para a pasta que contém o token de acesso à API do gmail (default: ~/.credentials).
+
+Exemplo:
+
+```sh
+docker run --rm \
+  -v ${PWD}:/insumos \
+  -v ${HOME}/.credentials:/root/.credentials \
+  -e email=fulano@mail.com \
+  -e nome="FULANO SICRANO" \
+  agendacovid19
+
+```
+
+
 # Limitações:
 
 Testado no Ubuntu 18.04 e no MacOS BigSur
