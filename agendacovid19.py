@@ -175,13 +175,13 @@ def main():
     if resultado != "":
         if 'pushbullet_token' in globals() or 'pushbullet_token' in locals():
             pb = Pushbullet(pushbullet_token)
-            titulo = "Encontrado agendamento para {}".format(nome)
+            titulo = "Encontrado agendamento de vacina"
             push = pb.push_note(titulo, resultado)
             print('Mensagem enviada para pushbullet')
         if 'email' in globals() or 'email' in locals():
             to = email
             sender = "agendacovid19.fortaleza@gmail.com"
-            subject = "Encontrado agendamento para {}".format(nome)
+            subject = "Encontrado agendamento"
             msgHtml = ''.join(resultado.split('/')[2:])
             msgPlain = msgHtml
             SendMessage(sender, to, subject, msgHtml, msgPlain)
