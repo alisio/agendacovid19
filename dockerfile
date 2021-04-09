@@ -11,4 +11,4 @@ WORKDIR /insumos
 ENV email="johndoe@mail.com"
 ENV nome="John Doe"
 ENV credencial="John Doe"
-CMD ["sh","-c","/app/agendacovid19.py -n ${nome} -m ${email}"]
+CMD ["sh","-c","/app/agendacovid19.py -n '${nome}' -m ${email}"]
