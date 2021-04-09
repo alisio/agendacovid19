@@ -103,8 +103,7 @@ def ajuda():
     print("uso: {} -n <NOME_A_SER_BUSCADO> [-t <TOKEN_PUSHBULLET>] [-m emaildedestino@mail.com]".format(sys.argv[0]))
 
 def get_credentials():
-    home_dir = os.path.expanduser('~')
-    credential_dir = os.path.join(home_dir, '.credentials')
+    credential_dir = './.credentials'
     if not os.path.exists(credential_dir):
         os.makedirs(credential_dir)
     credential_path = os.path.join(credential_dir, 'gmail-python-email-send.json')
