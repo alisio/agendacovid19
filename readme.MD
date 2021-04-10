@@ -95,7 +95,6 @@ Exemplo:
 docker run --rm \
   -v ${PWD}:/insumos \
   -e email=fulano@mail.com \
-  -e email="fulano@mail.com" \
   -e nome="FULANO SICRANO" \
   alisio/agendacovidfortaleza
 
