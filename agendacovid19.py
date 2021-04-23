@@ -183,10 +183,12 @@ def main():
         resultado = procura_nome_pdfgrep(nome,pasta_de_download,lista_de_arquivos_baixados)
         # remover registros vazios da lista
         resultado = list(filter(None, resultado))
+        # Pegar none da variavel de ambiente p/funcionamento correto quando executado em container
+        nome_python=subprocess.getoutput('echo {} 2> /dev/null'.format(nome))
         print("resultado: {}".format('\n'.join(resultado)))
         if len(resultado) > 0:
             for agendamento in resultado:
-                titulo = "Encontrado agendamento de vacinacão para {}".format(nome)
+                titulo = "Encontrado agendamento de vacinacão para {}".format(nome_python)
                 if 'pushbullet_token' in globals() or 'pushbullet_token' in locals():
                     pb = Pushbullet(pushbullet_token)
                     push = pb.push_note(titulo, agendamento)
@@ -199,7 +201,7 @@ def main():
                     msgPlain = msgHtml
                     SendMessage(sender, to, subject, msgHtml, msgPlain)
                     print(f"Mensagem enviada para email {email}")
-                print("Encontrado um novo agendamento agendamento para {}: \n {}".format(nome,agendamento))
+                print("Encontrado um novo agendamento agendamento para {}: \n {}".format(nome_python,agendamento))
     else:
         print ("Não foi encontrado um novo agendamento para {}".format(nome))
 
