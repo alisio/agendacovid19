@@ -6,7 +6,7 @@
 #
 # Este script baixa os arquivos PDF que contém a [listas de agendados](https://coronavirus.fortaleza.ce.gov.br/vacinacao.html)
 # da vacina contra o COVID19 em Fortaleza/CE, procura pelo nome dado e envia o
-# resultado da busca para uma conta push bullet através da sua API
+# resultado da busca para uma conta push bullet através da sua API, ou via gmail através da api do google cloud
 
 
 from bs4 import BeautifulSoup
@@ -34,6 +34,7 @@ url = 'https://spreadsheets.google.com/feeds/list/1IJBDu8dRGLkBgX72sRWKY6R9Gfefs
 SCOPES = 'https://www.googleapis.com/auth/gmail.send'
 CLIENT_SECRET_FILE = 'credentials.json'
 APPLICATION_NAME = 'Agenda Covid 19 - Fortaleza'
+pasta_de_download = './arquivos_baixados'
 
 ## Variáveis
 full_cmd_arguments = sys.argv
@@ -41,14 +42,6 @@ argument_list = full_cmd_arguments[1:]
 short_options = "t:n:m:"
 long_options = ["token", "nome=", "email="]
 
-
-# In[3]:
-
-
-try:
-    pasta_de_download
-except:
-    pasta_de_download = './arquivos_baixados'
 
 
 # Criar lista contendo todos os endereços dos arquivos PDF para download listados no endereço da variável url
@@ -175,11 +168,12 @@ def main():
             
     # Pegar none da variavel de ambiente p/funcionamento correto quando executado em container
     nome_python=subprocess.getoutput('echo {} 2> /dev/null'.format(nome))
-    criar_pasta_de_download(pasta_de_download)
+    pasta_de_download_por_nome=pasta_de_download + '/' + nome_python
+    criar_pasta_de_download(pasta_de_download_por_nome)
     lista_de_links=scrape_lista_de_pdf(url)
     lista_de_arquivos_baixados=[]
     for link in lista_de_links:
-        if download_arquivo(link, pasta_de_download):
+        if download_arquivo(link, pasta_de_download_por_nome):
             arquivo_no_link = link.rsplit('/', 1)[-1]
             lista_de_arquivos_baixados.append(arquivo_no_link)
 
