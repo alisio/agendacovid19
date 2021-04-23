@@ -186,7 +186,7 @@ def main():
         print("resultado: {}".format('\n'.join(resultado)))
         if len(resultado) > 0:
             for agendamento in resultado:
-                titulo = "Encontrado agendamento de vacinacão"
+                titulo = "Encontrado agendamento de vacinacão para {}".format(nome)
                 if 'pushbullet_token' in globals() or 'pushbullet_token' in locals():
                     pb = Pushbullet(pushbullet_token)
                     push = pb.push_note(titulo, agendamento)
