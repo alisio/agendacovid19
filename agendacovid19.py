@@ -151,13 +151,7 @@ def CreateMessage(sender, to, subject, msgHtml, msgPlain):
 
 
 def main():
-    criar_pasta_de_download(pasta_de_download)
-    lista_de_links=scrape_lista_de_pdf(url)
-    lista_de_arquivos_baixados=[]
-    for link in lista_de_links:
-        if download_arquivo(link, pasta_de_download):
-            arquivo_no_link = link.rsplit('/', 1)[-1]
-            lista_de_arquivos_baixados.append(arquivo_no_link)
+
     try:
         arguments, values = getopt.getopt(argument_list, short_options, long_options)
     except getopt.error as err:
@@ -170,7 +164,7 @@ def main():
         ajuda()
         sys.exit(2)
 
-    # Evaluate given options
+# Evaluate given options
     for current_argument, current_value in arguments:
         if current_argument in ("-t", "--token"):
             pushbullet_token = current_value
@@ -178,13 +172,23 @@ def main():
             nome = current_value
         elif current_argument in ("-m", "--email"):
             email = current_value
+            
+    # Pegar none da variavel de ambiente p/funcionamento correto quando executado em container
+    nome_python=subprocess.getoutput('echo {} 2> /dev/null'.format(nome))
+    criar_pasta_de_download(pasta_de_download)
+    lista_de_links=scrape_lista_de_pdf(url)
+    lista_de_arquivos_baixados=[]
+    for link in lista_de_links:
+        if download_arquivo(link, pasta_de_download):
+            arquivo_no_link = link.rsplit('/', 1)[-1]
+            lista_de_arquivos_baixados.append(arquivo_no_link)
+
     
     if len(lista_de_arquivos_baixados) > 0:
         resultado = procura_nome_pdfgrep(nome,pasta_de_download,lista_de_arquivos_baixados)
         # remover registros vazios da lista
         resultado = list(filter(None, resultado))
-        # Pegar none da variavel de ambiente p/funcionamento correto quando executado em container
-        nome_python=subprocess.getoutput('echo {} 2> /dev/null'.format(nome))
+
         print("resultado: {}".format('\n'.join(resultado)))
         if len(resultado) > 0:
             for agendamento in resultado:
