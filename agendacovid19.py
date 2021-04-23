@@ -78,7 +78,10 @@ def criar_pasta_de_download(pasta_de_download):
 
 # In[6]:
 
-
+# Entrada: url de download e pasta de destino
+# Saída: escreve arquivo em disco e retorna:
+#   True: arquivo foi baixado
+#   False: arquivo já existe
 def download_arquivo(url,pasta_de_download='.'):
     nome_do_arquivo = url.rsplit('/', 1)[-1]
     caminho = os.path.join(pasta_de_download, nome_do_arquivo)
@@ -88,15 +91,18 @@ def download_arquivo(url,pasta_de_download='.'):
             with open(caminho, 'wb') as local_file:
                 for data in arquivo_stream:
                     local_file.write(data)
+            return True
     except:
-        print('Não foi possível salvar o arquivo na url {}'.format(url))
-
+        # print('Não foi possível salvar o arquivo na url {}'.format(url))
+        return False
 
 # In[7]:
 
 
-def procura_nome_pdfgrep(nome, pasta='.'):
-    resultado_da_busca = subprocess.getoutput('pdfgrep -i "{}" {}/*.pdf 2> /dev/null'.format(nome, pasta))
+def procura_nome_pdfgrep(nome, pasta='.', arquivos="*.pdf"):
+    resultado_da_busca = []
+    for arquivo in arquivos:
+        resultado_da_busca.append(subprocess.getoutput('pdfgrep -i "{}" {}/{} 2> /dev/null'.format(nome, pasta,arquivo)))
     return resultado_da_busca
 
 def ajuda():
@@ -147,8 +153,11 @@ def CreateMessage(sender, to, subject, msgHtml, msgPlain):
 def main():
     criar_pasta_de_download(pasta_de_download)
     lista_de_links=scrape_lista_de_pdf(url)
+    lista_de_arquivos_baixados=[]
     for link in lista_de_links:
-        download_arquivo(link, pasta_de_download)
+        if download_arquivo(link, pasta_de_download):
+            arquivo_no_link = link.rsplit('/', 1)[-1]
+            lista_de_arquivos_baixados.append(arquivo_no_link)
     try:
         arguments, values = getopt.getopt(argument_list, short_options, long_options)
     except getopt.error as err:
@@ -169,26 +178,30 @@ def main():
             nome = current_value
         elif current_argument in ("-m", "--email"):
             email = current_value
-
-    resultado = procura_nome_pdfgrep(nome, pasta_de_download)
-
-    if resultado != "":
-        titulo = "Encontrado agendamento de vacinacão"
-        if 'pushbullet_token' in globals() or 'pushbullet_token' in locals():
-            pb = Pushbullet(pushbullet_token)
-            push = pb.push_note(titulo, resultado)
-            print('Mensagem enviada para pushbullet')
-        if 'email' in globals() or 'email' in locals():
-            to = email
-            sender = "agendacovid19.fortaleza@gmail.com"
-            subject = titulo
-            msgHtml = ''.join(resultado.split('/')[2:])
-            msgPlain = msgHtml
-            SendMessage(sender, to, subject, msgHtml, msgPlain)
-            print(f"Mensagem enviada para email {email}")
-        print("Encontrado agendamento para {}: \n {}".format(nome,''.join(resultado.split('/')[2:])))
+    
+    if len(lista_de_arquivos_baixados) > 0:
+        resultado = procura_nome_pdfgrep(nome,pasta_de_download,lista_de_arquivos_baixados)
+        # remover registros vazios da lista
+        resultado = list(filter(None, resultado))
+        print("resultado: {}".format('\n'.join(resultado)))
+        if len(resultado) > 0:
+            for agendamento in resultado:
+                titulo = "Encontrado agendamento de vacinacão"
+                if 'pushbullet_token' in globals() or 'pushbullet_token' in locals():
+                    pb = Pushbullet(pushbullet_token)
+                    push = pb.push_note(titulo, agendamento)
+                    print('Mensagem enviada para pushbullet')
+                if 'email' in globals() or 'email' in locals():
+                    to = email
+                    sender = "agendacovid19.fortaleza@gmail.com"
+                    subject = titulo
+                    msgHtml = agendamento
+                    msgPlain = msgHtml
+                    SendMessage(sender, to, subject, msgHtml, msgPlain)
+                    print(f"Mensagem enviada para email {email}")
+                print("Encontrado um novo agendamento agendamento para {}: \n {}".format(nome,agendamento))
     else:
-        print ("Não foi encontrado agendamento para {}".format(nome))
+        print ("Não foi encontrado um novo agendamento para {}".format(nome))
 
 if __name__ == '__main__':
     main()
