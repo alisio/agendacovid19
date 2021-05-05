@@ -165,7 +165,7 @@ def main():
             nome = current_value
         elif current_argument in ("-m", "--email"):
             email = current_value
-            
+
     # Pegar none da variavel de ambiente p/funcionamento correto quando executado em container
     nome_python=subprocess.getoutput('echo {} 2> /dev/null'.format(nome))
     pasta_de_download_por_nome=pasta_de_download + '/' + nome_python
@@ -177,7 +177,7 @@ def main():
             arquivo_no_link = link.rsplit('/', 1)[-1]
             lista_de_arquivos_baixados.append(arquivo_no_link)
 
-    
+
     if len(lista_de_arquivos_baixados) > 0:
         resultado = procura_nome_pdfgrep(nome,pasta_de_download,lista_de_arquivos_baixados)
         # remover registros vazios da lista
@@ -201,7 +201,7 @@ def main():
                     print(f"Mensagem enviada para email {email}")
                 print("Encontrado um novo agendamento agendamento para {}: \n {}".format(nome_python,agendamento))
     else:
-        print ("Não foi encontrado um novo agendamento para {}".format(nome))
+        print ("Não foi encontrado um novo agendamento para {}".format(nome_python))
 
 if __name__ == '__main__':
     main()
